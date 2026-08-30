@@ -427,6 +427,7 @@
       <div class="footer-links">
         <a id="infoPhoneLink" href="tel:">Call the store</a>
         <a id="infoWhatsappLink" href="#" target="_blank" rel="noopener">WhatsApp us</a>
+        <a id="infoEmailLink" href="#">Email sales</a>
       </div>
     </div>
   </div>
@@ -500,6 +501,7 @@
           <input class="field" id="iPhone" placeholder="Phone number">
         </div>
         <input class="field" id="iWhatsapp" placeholder="WhatsApp number, digits with country code (e.g. 263771234567)">
+        <input class="field" id="iEmail" type="email" placeholder="Sales email (e.g. sales@yourstore.com)">
         <button type="submit" class="btn btn-primary">Save details</button>
         <p class="save-msg" id="infoSaveMsg" hidden>Saved.</p>
       </form>
@@ -513,7 +515,7 @@
 document.getElementById('year').textContent = new Date().getFullYear();
 
 let products = [];
-let storeInfo = { address: '123 Industrial Road, your city', hours: 'Mon–Sat, 8:00am – 5:00pm', phone: '', whatsapp: '' };
+let storeInfo = { address: '123 Industrial Road, your city', hours: 'Mon–Sat, 8:00am – 5:00pm', phone: '', whatsapp: '', email: '' };
 let adminPassword = null;
 let recoveryAnswer = null;
 let isAdmin = false;
@@ -612,7 +614,8 @@ async function seedDemoDataIfEmpty(){
       address: '48 Enterprise Road, Msasa, Harare',
       hours: 'Mon–Fri 8:00am–5:00pm · Sat 8:00am–1:00pm',
       phone: '+263 77 123 4567',
-      whatsapp: '263771234567'
+      whatsapp: '263771234567',
+      email: 'sales@switchandsocket.org'
     };
     changed = true;
     await saveInfo();
@@ -773,12 +776,20 @@ function renderStoreInfo(){
   document.getElementById('infoHours').textContent = storeInfo.hours || 'Mon–Sat, 8:00am – 5:00pm';
   const phoneLink = document.getElementById('infoPhoneLink');
   const waLink = document.getElementById('infoWhatsappLink');
+  const emailLink = document.getElementById('infoEmailLink');
   phoneLink.href = storeInfo.phone ? 'tel:' + storeInfo.phone.replace(/\s+/g,'') : '#contact';
   phoneLink.textContent = storeInfo.phone ? 'Call ' + storeInfo.phone : 'Call the store';
   if(storeInfo.whatsapp){
     waLink.href = 'https://wa.me/' + storeInfo.whatsapp.replace(/\D/g,'');
   } else {
     waLink.href = '#contact';
+  }
+  if(storeInfo.email){
+    emailLink.href = 'mailto:' + storeInfo.email;
+    emailLink.textContent = storeInfo.email;
+  } else {
+    emailLink.href = '#contact';
+    emailLink.textContent = 'Email sales';
   }
 }
 
@@ -985,6 +996,7 @@ function openAdminPanel(){
   document.getElementById('iHours').value = storeInfo.hours || '';
   document.getElementById('iPhone').value = storeInfo.phone || '';
   document.getElementById('iWhatsapp').value = storeInfo.whatsapp || '';
+  document.getElementById('iEmail').value = storeInfo.email || '';
   renderAdminList();
   adminPanel.hidden = false;
 }
@@ -1040,7 +1052,8 @@ document.getElementById('infoForm').addEventListener('submit', async (e)=>{
     address: document.getElementById('iAddress').value.trim(),
     hours: document.getElementById('iHours').value.trim(),
     phone: document.getElementById('iPhone').value.trim(),
-    whatsapp: document.getElementById('iWhatsapp').value.trim()
+    whatsapp: document.getElementById('iWhatsapp').value.trim(),
+    email: document.getElementById('iEmail').value.trim()
   };
   const ok = await saveInfo();
   renderStoreInfo();
