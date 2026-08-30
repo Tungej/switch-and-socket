@@ -84,8 +84,16 @@
   .btn-ghost:hover{background:var(--navy);color:#fff;}
   .btn.small{padding:8px 14px;font-size:13px;}
   .hero-art{position:relative;display:flex;align-items:center;justify-content:center;min-height:280px;}
-  .hero-wire{position:absolute;inset:0;width:100%;height:100%;max-width:340px;margin:0 auto;}
-  .hero-logo{position:relative;width:100%;max-width:260px;height:auto;object-fit:contain;}
+  .hero-photo-frame{
+    position:relative;width:100%;max-width:380px;
+    background:var(--paper);border:1px solid var(--line);border-radius:8px;
+    padding:14px;box-shadow:0 20px 40px rgba(18,42,61,0.12);
+  }
+  .hero-photo-frame::before{
+    content:"";position:absolute;left:14px;right:14px;bottom:-6px;height:6px;
+    background:var(--orange);border-radius:0 0 6px 6px;
+  }
+  .hero-photo{width:100%;height:auto;display:block;border-radius:3px;}
   .wire-dash{stroke-dasharray:6 7;animation:wire-flow 3.2s linear infinite;}
   @keyframes wire-flow{to{stroke-dashoffset:-130;}}
   @media (prefers-reduced-motion:reduce){.wire-dash{animation:none;}}
@@ -254,10 +262,9 @@
       </div>
     </div>
     <div class="hero-art">
-      <svg class="hero-wire" viewBox="0 0 220 260" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M118 12 L58 118 L108 118 L92 248 L118 118 L184 118 C216 118 216 62 184 62 L128 62" stroke="var(--line)" stroke-width="1" class="wire-dash" fill="none"/>
-      </svg>
-      <img src="shoplogo.png" alt="Switch & Socket logo" class="hero-logo">
+      <div class="hero-photo-frame">
+        <img src="hero-cables.jpg" alt="Multicore electrical cables in assorted colours" class="hero-photo">
+      </div>
     </div>
   </div>
 </section>
