@@ -71,12 +71,12 @@
   .hero-bg-art{
     position:absolute;top:-6%;right:-6%;bottom:-6%;width:58%;
     z-index:0;pointer-events:none;
-    -webkit-mask-image:linear-gradient(to left, black 35%, transparent 92%);
-    mask-image:linear-gradient(to left, black 35%, transparent 92%);
+    -webkit-mask-image:linear-gradient(to left, black 45%, transparent 95%);
+    mask-image:linear-gradient(to left, black 45%, transparent 95%);
   }
   .hero-bg-photo{
     width:100%;height:100%;object-fit:contain;object-position:center;
-    opacity:0.16;filter:saturate(0.85);
+    opacity:0.42;filter:saturate(1.05);
     animation:hero-float 8s ease-in-out infinite, hero-fade-in 1.4s ease-out both;
   }
   @keyframes hero-float{
@@ -85,12 +85,34 @@
   }
   @keyframes hero-fade-in{
     from{opacity:0;transform:translateY(24px) scale(0.98);}
-    to{opacity:0.16;transform:translateY(0) scale(1);}
+    to{opacity:0.42;transform:translateY(0) scale(1);}
   }
   @media (prefers-reduced-motion:reduce){
     .hero-bg-photo{animation:none;}
   }
   .hero-inner{position:relative;z-index:1;display:grid;grid-template-columns:1fr;gap:40px;align-items:center;}
+  .hero-copy .eyebrow,
+  .hero-copy h1,
+  .hero-copy .hero-sub,
+  .hero-copy .hero-actions{
+    opacity:0;animation:hero-text-in 0.7s ease-out forwards;
+  }
+  .hero-copy .eyebrow{animation-delay:0.05s;}
+  .hero-copy h1{animation-delay:0.18s;}
+  .hero-copy .hero-sub{animation-delay:0.34s;}
+  .hero-copy .hero-actions{animation-delay:0.5s;}
+  @keyframes hero-text-in{
+    from{opacity:0;transform:translateY(16px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .hero-copy .eyebrow,
+    .hero-copy h1,
+    .hero-copy .hero-sub,
+    .hero-copy .hero-actions{
+      opacity:1;animation:none;
+    }
+  }
   .hero h1{font-size:56px;line-height:1.03;color:var(--navy);font-weight:700;}
   .hero-sub{margin-top:20px;font-size:16.5px;line-height:1.6;color:var(--muted);max-width:440px;}
   .hero-actions{display:flex;gap:14px;margin-top:32px;flex-wrap:wrap;}
