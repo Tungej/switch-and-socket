@@ -90,6 +90,14 @@
   @media (prefers-reduced-motion:reduce){
     .hero-bg-photo{animation:none;}
   }
+  .hero-circuit{position:absolute;inset:0;z-index:0;pointer-events:none;}
+  .hero-circuit svg{width:100%;height:100%;}
+  .circuit-line{stroke:var(--navy);stroke-width:1.2;opacity:0.14;}
+  .circuit-node{fill:var(--navy);opacity:0.22;}
+  .pulse{fill:var(--orange);filter:drop-shadow(0 0 4px rgba(232,84,44,0.75));}
+  @media (prefers-reduced-motion:reduce){
+    .pulse{display:none;}
+  }
   .hero-inner{position:relative;z-index:1;display:grid;grid-template-columns:1fr;gap:40px;align-items:center;}
   .hero-copy .eyebrow,
   .hero-copy h1,
@@ -298,6 +306,42 @@
 <section class="hero">
   <div class="hero-bg-art" aria-hidden="true">
     <img src="hero-cables.jpg" alt="" class="hero-bg-photo">
+  </div>
+  <div class="hero-circuit" aria-hidden="true">
+    <svg viewBox="0 0 1200 480" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+      <path id="hc1" class="circuit-line" d="M-20,110 H360 V50 H760 V110 H1220" fill="none"/>
+      <path id="hc2" class="circuit-line" d="M-20,260 H240 V330 H640 V260 H1220" fill="none"/>
+      <path id="hc3" class="circuit-line" d="M-20,410 H160 V450 H520 V410 H1220" fill="none"/>
+
+      <circle class="circuit-node" cx="360" cy="110" r="3"/>
+      <circle class="circuit-node" cx="360" cy="50" r="3"/>
+      <circle class="circuit-node" cx="760" cy="50" r="3"/>
+      <circle class="circuit-node" cx="760" cy="110" r="3"/>
+      <circle class="circuit-node" cx="240" cy="260" r="3"/>
+      <circle class="circuit-node" cx="240" cy="330" r="3"/>
+      <circle class="circuit-node" cx="640" cy="330" r="3"/>
+      <circle class="circuit-node" cx="640" cy="260" r="3"/>
+      <circle class="circuit-node" cx="160" cy="410" r="3"/>
+      <circle class="circuit-node" cx="160" cy="450" r="3"/>
+      <circle class="circuit-node" cx="520" cy="450" r="3"/>
+      <circle class="circuit-node" cx="520" cy="410" r="3"/>
+
+      <circle class="pulse" r="4">
+        <animateMotion dur="5s" repeatCount="indefinite" begin="0s">
+          <mpath href="#hc1" xlink:href="#hc1"/>
+        </animateMotion>
+      </circle>
+      <circle class="pulse" r="4">
+        <animateMotion dur="6.5s" repeatCount="indefinite" begin="1.4s">
+          <mpath href="#hc2" xlink:href="#hc2"/>
+        </animateMotion>
+      </circle>
+      <circle class="pulse" r="4">
+        <animateMotion dur="5.8s" repeatCount="indefinite" begin="2.8s">
+          <mpath href="#hc3" xlink:href="#hc3"/>
+        </animateMotion>
+      </circle>
+    </svg>
   </div>
   <div class="wrap hero-inner">
     <div class="hero-copy">
