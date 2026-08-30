@@ -346,11 +346,27 @@
 <div class="modal" id="adminModal" hidden>
   <div class="modal-card">
     <button class="modal-close" id="closeAdminModal" aria-label="Close">×</button>
-    <h3>Store Login</h3>
-    <p class="field-hint" id="loginHint">Enter your store password to manage products.</p>
-    <input type="password" class="field" id="adminPasswordInput" placeholder="Password">
-    <button class="btn btn-primary" id="adminLoginSubmit" style="width:100%;">Enter</button>
-    <p class="error-text" id="adminLoginError" hidden>That password isn't right — try again.</p>
+
+    <div id="loginView">
+      <h3>Store Login</h3>
+      <p class="field-hint" id="loginHint">Enter your store password to manage products.</p>
+      <input type="password" class="field" id="adminPasswordInput" placeholder="Password">
+      <input type="text" class="field" id="setupRecoveryAnswer" placeholder="Recovery answer (e.g. your mother's hometown)" hidden>
+      <p class="field-hint" id="setupRecoveryHint" hidden style="margin-top:-6px;">You'll need this if you ever forget your password — pick something only you'd know.</p>
+      <button class="btn btn-primary" id="adminLoginSubmit" style="width:100%;">Enter</button>
+      <p class="error-text" id="adminLoginError" hidden>That password isn't right — try again.</p>
+      <p class="field-hint" id="forgotPasswordLink" style="margin-top:14px;margin-bottom:0;cursor:pointer;text-decoration:underline;">Forgot your password?</p>
+    </div>
+
+    <div id="recoveryView" hidden>
+      <h3>Reset Password</h3>
+      <p class="field-hint" id="recoveryStepHint">Answer your recovery question to set a new password.</p>
+      <input type="text" class="field" id="recoveryAnswerInput" placeholder="Recovery answer">
+      <input type="password" class="field" id="recoveryNewPassword" placeholder="New password" hidden>
+      <button class="btn btn-primary" id="recoverySubmit" style="width:100%;">Continue</button>
+      <p class="error-text" id="recoveryError" hidden>That answer doesn't match — try again.</p>
+      <p class="field-hint" id="backToLoginLink" style="margin-top:14px;margin-bottom:0;cursor:pointer;text-decoration:underline;">Back to login</p>
+    </div>
   </div>
 </div>
 
@@ -405,6 +421,7 @@ document.getElementById('year').textContent = new Date().getFullYear();
 let products = [];
 let storeInfo = { address: '123 Industrial Road, your city', hours: 'Mon–Sat, 8:00am – 5:00pm', phone: '', whatsapp: '' };
 let adminPassword = null;
+let recoveryAnswer = null;
 let isAdmin = false;
 
 function showToast(msg){
@@ -551,6 +568,7 @@ async function loadAll(){
       const data = settingsSnap.data();
       if(data.info) storeInfo = data.info;
       adminPassword = data.adminPassword || null;
+      recoveryAnswer = data.recoveryAnswer || null;
     }
   }catch(e){ /* keep defaults */ }
 
@@ -576,6 +594,7 @@ async function loadAll(){
     const data = snap.data();
     if(data.info) storeInfo = data.info;
     adminPassword = data.adminPassword || adminPassword;
+    recoveryAnswer = data.recoveryAnswer || recoveryAnswer;
     renderStoreInfo();
   }, () => { /* ignore transient listener errors */ });
 }
@@ -610,10 +629,13 @@ async function saveInfo(){
   }
 }
 
-async function savePassword(pw){
+async function savePassword(pw, recovery){
   try{
-    await settingsRef.set({ adminPassword: pw }, { merge: true });
+    const payload = { adminPassword: pw };
+    if(recovery !== undefined) payload.recoveryAnswer = recovery.trim().toLowerCase();
+    await settingsRef.set(payload, { merge: true });
     adminPassword = pw;
+    if(recovery !== undefined) recoveryAnswer = payload.recoveryAnswer;
     return true;
   }catch(e){
     showToast('Could not save your password — please try again.');
@@ -728,19 +750,32 @@ function resizeImage(file, maxW = 900, quality = 0.75){
 /* ---------- Admin login ---------- */
 const adminModal = document.getElementById('adminModal');
 const adminPanel = document.getElementById('adminPanel');
+const loginView = document.getElementById('loginView');
+const recoveryView = document.getElementById('recoveryView');
 const loginHint = document.getElementById('loginHint');
 const loginError = document.getElementById('adminLoginError');
 const passwordInput = document.getElementById('adminPasswordInput');
+const setupRecoveryAnswer = document.getElementById('setupRecoveryAnswer');
+const setupRecoveryHint = document.getElementById('setupRecoveryHint');
 
-document.getElementById('adminLoginBtn').addEventListener('click', ()=>{
+function openLoginModal(){
+  loginView.hidden = false;
+  recoveryView.hidden = true;
   loginError.hidden = true;
   passwordInput.value = '';
-  loginHint.textContent = adminPassword
-    ? 'Enter your store password to manage products.'
-    : 'No password set yet — enter one now to create it.';
+  const isSetup = !adminPassword;
+  loginHint.textContent = isSetup
+    ? 'No password set yet — enter one now to create it.'
+    : 'Enter your store password to manage products.';
+  setupRecoveryAnswer.hidden = !isSetup;
+  setupRecoveryHint.hidden = !isSetup;
+  setupRecoveryAnswer.value = '';
+  document.getElementById('forgotPasswordLink').hidden = isSetup;
   adminModal.hidden = false;
   passwordInput.focus();
-});
+}
+
+document.getElementById('adminLoginBtn').addEventListener('click', openLoginModal);
 
 document.getElementById('closeAdminModal').addEventListener('click', ()=> adminModal.hidden = true);
 adminModal.addEventListener('click', (e)=>{ if(e.target === adminModal) adminModal.hidden = true; });
@@ -754,11 +789,16 @@ document.getElementById('adminLoginSubmit').addEventListener('click', async ()=>
 
   try{
     if(!adminPassword){
-      const ok = await savePassword(val);
+      const answer = setupRecoveryAnswer.value.trim();
+      if(!answer){
+        setupRecoveryAnswer.focus();
+        return;
+      }
+      const ok = await savePassword(val, answer);
       if(ok){
         adminModal.hidden = true;
         openAdminPanel();
-        showToast('Password set. Keep it safe — you will need it next time.');
+        showToast('Password set. Keep it — and your recovery answer — safe.');
       }
       return;
     }
@@ -777,6 +817,73 @@ document.getElementById('adminLoginSubmit').addEventListener('click', async ()=>
 passwordInput.addEventListener('keydown', (e)=>{
   if(e.key === 'Enter') document.getElementById('adminLoginSubmit').click();
 });
+
+/* ---------- Password recovery ---------- */
+const recoveryStepHint = document.getElementById('recoveryStepHint');
+const recoveryAnswerInput = document.getElementById('recoveryAnswerInput');
+const recoveryNewPassword = document.getElementById('recoveryNewPassword');
+const recoveryError = document.getElementById('recoveryError');
+const recoverySubmit = document.getElementById('recoverySubmit');
+let recoveryAnswerVerified = false;
+
+document.getElementById('forgotPasswordLink').addEventListener('click', ()=>{
+  loginView.hidden = true;
+  recoveryView.hidden = false;
+  recoveryError.hidden = true;
+  recoveryAnswerVerified = false;
+  recoveryAnswerInput.hidden = false;
+  recoveryNewPassword.hidden = true;
+  recoveryAnswerInput.value = '';
+  recoveryNewPassword.value = '';
+  recoveryStepHint.textContent = 'Answer your recovery question to set a new password.';
+  recoverySubmit.textContent = 'Continue';
+  recoveryAnswerInput.focus();
+});
+
+document.getElementById('backToLoginLink').addEventListener('click', openLoginModal);
+
+recoverySubmit.addEventListener('click', async ()=>{
+  recoveryError.hidden = true;
+
+  if(!recoveryAnswerVerified){
+    if(!recoveryAnswer){
+      recoveryError.textContent = "No recovery answer was ever set for this store, so this can't be verified automatically. If you have access to the Firebase console, you can reset the password there directly in the store/settings document.";
+      recoveryError.hidden = false;
+      return;
+    }
+    const given = recoveryAnswerInput.value.trim().toLowerCase();
+    if(!given){ return; }
+    if(given === recoveryAnswer){
+      recoveryAnswerVerified = true;
+      recoveryAnswerInput.hidden = true;
+      recoveryNewPassword.hidden = false;
+      recoveryStepHint.textContent = 'That matches. Set your new password.';
+      recoverySubmit.textContent = 'Save new password';
+      recoveryNewPassword.focus();
+    } else {
+      recoveryError.textContent = "That answer doesn't match — try again.";
+      recoveryError.hidden = false;
+    }
+    return;
+  }
+
+  const newPw = recoveryNewPassword.value.trim();
+  if(!newPw) return;
+  recoverySubmit.disabled = true;
+  try{
+    const ok = await savePassword(newPw);
+    if(ok){
+      adminModal.hidden = true;
+      openAdminPanel();
+      showToast('Password reset.');
+    }
+  }finally{
+    recoverySubmit.disabled = false;
+  }
+});
+
+recoveryAnswerInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') recoverySubmit.click(); });
+recoveryNewPassword.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') recoverySubmit.click(); });
 
 function openAdminPanel(){
   isAdmin = true;
