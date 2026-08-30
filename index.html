@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Switch & Socket — Electrical Hardware</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+  :root{
+    --navy:#122a3d;
+    --navy-deep:#0a1b28;
+    --orange:#e8542c;
+    --orange-light:#f27a4d;
+    --cream:#f6f2e9;
+    --paper:#fffdf9;
+    --ink:#1c2733;
+    --muted:#6b7684;
+    --line:#ded7c6;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Space Grotesk',sans-serif;margin:0;letter-spacing:-0.01em;}
+  p{margin:0;}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 28px;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--orange);
+    margin-bottom:10px;
+    display:block;
+  }
+  .accent{color:var(--orange);}
+
+  /* ---------- Header ---------- */
+  .site-header{
+    position:sticky;top:0;z-index:40;
+    background:rgba(246,242,233,0.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .header-inner{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 28px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-logo{width:34px;height:34px;object-fit:contain;flex-shrink:0;}
+  .brand-text{display:flex;flex-direction:column;line-height:1.15;}
+  .brand-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;color:var(--navy);}
+  .brand-sub{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);}
+  .nav{display:flex;gap:28px;font-size:14px;font-weight:500;}
+  .nav a{color:var(--navy);opacity:0.75;transition:opacity 0.2s;}
+  .nav a:hover{opacity:1;}
+  .nav-toggle{display:none;background:none;border:none;cursor:pointer;padding:4px;}
+
+  /* ---------- Hero ---------- */
+  .hero{padding:76px 0 64px;overflow:hidden;}
+  .hero-inner{display:grid;grid-template-columns:1.05fr 0.95fr;gap:40px;align-items:center;}
+  .hero h1{font-size:56px;line-height:1.03;color:var(--navy);font-weight:700;}
+  .hero-sub{margin-top:20px;font-size:16.5px;line-height:1.6;color:var(--muted);max-width:440px;}
+  .hero-actions{display:flex;gap:14px;margin-top:32px;flex-wrap:wrap;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    padding:13px 24px;border-radius:3px;font-size:14.5px;font-weight:600;
+    cursor:pointer;border:1.5px solid transparent;transition:all 0.15s;
+    font-family:'Inter',sans-serif;
+  }
+  .btn-primary{background:var(--orange);color:#fff;}
+  .btn-primary:hover{background:#d4491f;}
+  .btn-ghost{border-color:var(--navy);color:var(--navy);}
+  .btn-ghost:hover{background:var(--navy);color:#fff;}
+  .btn.small{padding:8px 14px;font-size:13px;}
+  .hero-art{position:relative;display:flex;align-items:center;justify-content:center;min-height:280px;}
+  .hero-wire{position:absolute;inset:0;width:100%;height:100%;max-width:340px;margin:0 auto;}
+  .hero-logo{position:relative;width:100%;max-width:260px;height:auto;object-fit:contain;}
+  .wire-dash{stroke-dasharray:6 7;animation:wire-flow 3.2s linear infinite;}
+  @keyframes wire-flow{to{stroke-dashoffset:-130;}}
+  @media (prefers-reduced-motion:reduce){.wire-dash{animation:none;}}
+
+  /* ---------- Features ---------- */
+  .features{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--paper);}
+  .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;}
+  .feature{padding:38px 30px;border-left:1px solid var(--line);}
+  .feature:first-child{border-left:none;}
+  .feature svg{width:26px;height:26px;color:var(--orange);margin-bottom:16px;}
+  .feature h3{font-size:16px;color:var(--navy);margin-bottom:8px;}
+  .feature p{font-size:14px;color:var(--muted);line-height:1.55;}
+
+  /* ---------- Shop ---------- */
+  .shop{padding:72px 0 80px;}
+  .shop-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:36px;flex-wrap:wrap;gap:10px;}
+  .shop h2{font-size:32px;color:var(--navy);}
+  .stock-count{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--muted);}
+  .product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:22px;}
+  .card{
+    background:var(--paper);border:1px solid var(--line);border-radius:4px;overflow:hidden;
+    display:flex;flex-direction:column;transition:transform 0.18s,box-shadow 0.18s;
+  }
+  .card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(18,42,61,0.09);}
+  .card-media{position:relative;aspect-ratio:1/1;background:var(--cream);overflow:hidden;}
+  .card-media img{width:100%;height:100%;object-fit:cover;display:block;}
+  .card-media .ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--line);}
+  .card-media .ph svg{width:40px;height:40px;}
+  .price-tag{
+    position:absolute;top:10px;right:10px;
+    background:var(--navy);color:#fff;
+    padding:6px 10px 6px 12px;
+    font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;
+    border-radius:2px 8px 8px 2px;
+    box-shadow:0 3px 8px rgba(10,27,40,0.25);
+  }
+  .price-tag::before{
+    content:"";position:absolute;left:4px;top:50%;transform:translateY(-50%);
+    width:5px;height:5px;border-radius:50%;background:var(--cream);
+  }
+  .card-body{padding:14px 16px 16px;}
+  .card-body h3{font-size:14.5px;color:var(--navy);font-weight:600;margin-bottom:4px;}
+  .card-cat{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);}
+  .empty-state{
+    text-align:center;padding:60px 20px;border:1.5px dashed var(--line);border-radius:6px;color:var(--muted);
+  }
+  .empty-state h3{color:var(--navy);font-size:18px;margin-bottom:8px;}
+  .empty-state p{font-size:14px;line-height:1.6;max-width:380px;margin:0 auto;}
+
+  /* ---------- Compliance ---------- */
+  .compliance{padding:52px 0;background:var(--paper);border-top:1px solid var(--line);border-bottom:1px solid var(--line);text-align:center;}
+  .compliance .eyebrow{display:block;}
+  .compliance-title{font-size:22px;color:var(--navy);margin-bottom:32px;}
+  .badge-row{display:flex;justify-content:center;gap:44px;flex-wrap:wrap;}
+  .badge{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:150px;}
+  .badge-mark{
+    width:76px;height:76px;border-radius:50%;
+    border:1.5px solid var(--navy);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;
+    letter-spacing:0.03em;color:var(--navy);line-height:1.2;text-align:center;
+  }
+  .badge-label{font-size:12px;color:var(--muted);line-height:1.4;}
+
+  /* ---------- Footer ---------- */
+  footer{background:var(--navy-deep);color:#e9ecef;padding:56px 0 0;}
+  .footer-inner{display:grid;grid-template-columns:1fr 1fr;gap:40px;padding-bottom:40px;border-bottom:1px solid rgba(255,255,255,0.1);}
+  footer h3{font-size:14px;color:#fff;margin-bottom:14px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.06em;text-transform:uppercase;}
+  footer p{font-size:14.5px;line-height:1.7;color:#b7c0c9;}
+  .footer-links{display:flex;gap:14px;margin-top:14px;flex-wrap:wrap;}
+  .footer-links a{
+    font-size:13.5px;font-weight:600;padding:9px 16px;border:1px solid rgba(255,255,255,0.25);border-radius:3px;color:#fff;transition:background 0.15s;
+  }
+  .footer-links a:hover{background:rgba(255,255,255,0.1);}
+  .footer-bottom{display:flex;justify-content:space-between;align-items:center;padding:20px 0;font-size:12.5px;color:#7c8894;}
+  .admin-link{background:none;border:none;color:#7c8894;font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;}
+  .admin-link:hover{color:#fff;}
+
+  /* ---------- Modal ---------- */
+  .modal{position:fixed;inset:0;background:rgba(10,20,30,0.55);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;}
+  .modal[hidden]{display:none;}
+  .modal-card{background:var(--paper);border-radius:6px;padding:32px;width:100%;max-width:360px;position:relative;}
+  .modal-close{position:absolute;top:14px;right:14px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);}
+  .modal-card h3{font-size:19px;color:var(--navy);margin-bottom:6px;}
+  .field-hint{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.5;}
+  .field{
+    width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:3px;
+    font-family:'Inter',sans-serif;font-size:14px;margin-bottom:12px;background:#fff;color:var(--ink);
+  }
+  .field:focus{outline:2px solid var(--orange);outline-offset:1px;}
+  .error-text{color:#c0392b;font-size:13px;margin-top:4px;}
+  .error-text[hidden]{display:none;}
+
+  /* ---------- Admin panel ---------- */
+  .admin-panel{position:fixed;inset:0;background:var(--cream);z-index:90;overflow-y:auto;}
+  .admin-panel[hidden]{display:none;}
+  .admin-inner{max-width:760px;margin:0 auto;padding:32px 24px 80px;}
+  .admin-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .admin-top h2{font-size:24px;color:var(--navy);}
+  .admin-section{background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:24px;margin-top:20px;}
+  .admin-section h3{font-size:15px;color:var(--navy);margin-bottom:16px;}
+  .admin-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .admin-list-item{
+    display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);
+  }
+  .admin-list-item:last-child{border-bottom:none;}
+  .admin-list-item img,.admin-list-item .ph-sm{
+    width:44px;height:44px;border-radius:3px;object-fit:cover;background:var(--cream);flex-shrink:0;
+  }
+  .admin-list-item .info{flex:1;min-width:0;}
+  .admin-list-item .info .n{font-size:14px;font-weight:600;color:var(--navy);}
+  .admin-list-item .info .p{font-size:12.5px;font-family:'IBM Plex Mono',monospace;color:var(--muted);}
+  .del-btn{background:none;border:1px solid var(--line);color:#c0392b;border-radius:3px;padding:6px 10px;font-size:12px;cursor:pointer;}
+  .del-btn:hover{background:#fbeae7;}
+  .save-msg{font-size:13px;color:#1f8a4c;margin-top:8px;}
+  .save-msg[hidden]{display:none;}
+  .muted-sm{font-size:12.5px;color:var(--muted);}
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    background:var(--navy);color:#fff;padding:12px 20px;border-radius:4px;font-size:13.5px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.2);z-index:200;opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
+
+  @media (max-width:860px){
+    .hero-inner{grid-template-columns:1fr;}
+    .hero-art{order:-1;max-width:220px;margin:0 auto;}
+    .hero h1{font-size:40px;}
+    .features-grid{grid-template-columns:1fr;}
+    .feature{border-left:none;border-top:1px solid var(--line);}
+    .feature:first-child{border-top:none;}
+    .footer-inner{grid-template-columns:1fr;}
+    .nav{display:none;}
+    .admin-row{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <div class="brand">
+      <img src="shoplogo.png" alt="Switch & Socket logo" class="brand-logo">
+      <div class="brand-text">
+        <span class="brand-name">Switch <span class="accent">&amp;</span> Socket</span>
+        <span class="brand-sub">Electrical Hardware</span>
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="#shop">Shop</a>
+      <a href="#why">Why Us</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div class="hero-copy">
+      <span class="eyebrow">Electrical Hardware · In Stock</span>
+      <h1>Wired right.<br>Priced fair.</h1>
+      <p class="hero-sub">Switches, sockets, breakers and cable — genuine parts for tradesmen and DIYers, ready at our counter.</p>
+      <div class="hero-actions">
+        <a href="#shop" class="btn btn-primary">Browse the counter</a>
+        <a href="#contact" class="btn btn-ghost">Get a trade quote</a>
+      </div>
+    </div>
+    <div class="hero-art">
+      <svg class="hero-wire" viewBox="0 0 220 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M118 12 L58 118 L108 118 L92 248 L118 118 L184 118 C216 118 216 62 184 62 L128 62" stroke="var(--line)" stroke-width="1" class="wire-dash" fill="none"/>
+      </svg>
+      <img src="shoplogo.png" alt="Switch & Socket logo" class="hero-logo">
+    </div>
+  </div>
+</section>
+
+<section class="features" id="why">
+  <div class="wrap features-grid">
+    <div class="feature">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2 3 7v6c0 5 4 8 9 9 5-1 9-4 9-9V7z"/><path d="M9 12l2 2 4-4"/></svg>
+      <h3>Genuine Parts</h3>
+      <p>Every switch, socket and breaker on our shelves is sourced from certified manufacturers.</p>
+    </div>
+    <div class="feature">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7h18M3 12h18M3 17h12"/></svg>
+      <h3>Trade Counter Pricing</h3>
+      <p>Buy in bulk and we'll price it like a tradesman, not a tourist.</p>
+    </div>
+    <div class="feature">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      <h3>Same-Day Pickup</h3>
+      <p>Order online, collect at the counter before we close.</p>
+    </div>
+  </div>
+</section>
+
+<section class="shop" id="shop">
+  <div class="wrap">
+    <div class="shop-head">
+      <div>
+        <span class="eyebrow">At the Counter</span>
+        <h2>What's in stock</h2>
+      </div>
+      <span class="stock-count mono" id="stockCount"></span>
+    </div>
+    <div class="product-grid" id="productGrid"></div>
+    <div class="empty-state" id="emptyState" hidden>
+      <h3>The counter's being stocked</h3>
+      <p>Check back shortly — or if this is your shop, log in below and add your first product.</p>
+    </div>
+  </div>
+</section>
+
+<section class="compliance">
+  <div class="wrap">
+    <span class="eyebrow">Compliance</span>
+    <h2 class="compliance-title">Standards we work to</h2>
+    <div class="badge-row">
+      <div class="badge">
+        <div class="badge-mark">SABS</div>
+        <span class="badge-label">South African Bureau of Standards</span>
+      </div>
+      <div class="badge">
+        <div class="badge-mark">SAZ</div>
+        <span class="badge-label">Standards Association of Zimbabwe</span>
+      </div>
+      <div class="badge">
+        <div class="badge-mark">ISO<br>9001</div>
+        <span class="badge-label">ISO 9001 Quality Management</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="wrap footer-inner">
+    <div>
+      <h3>Visit the Counter</h3>
+      <p id="infoAddress">123 Industrial Road, your city</p>
+      <p id="infoHours" style="margin-top:8px;">Mon–Sat, 8:00am – 5:00pm</p>
+    </div>
+    <div>
+      <h3>Order or Ask a Question</h3>
+      <p>Call, WhatsApp, or stop by — we'll help you find the right part.</p>
+      <div class="footer-links">
+        <a id="infoPhoneLink" href="tel:">Call the store</a>
+        <a id="infoWhatsappLink" href="#" target="_blank" rel="noopener">WhatsApp us</a>
+      </div>
+    </div>
+  </div>
+  <div class="wrap footer-bottom">
+    <span>© <span id="year"></span> Switch &amp; Socket Electrical Hardware</span>
+    <button class="admin-link" id="adminLoginBtn">Store login</button>
+  </div>
+</footer>
+
+<!-- Login modal -->
+<div class="modal" id="adminModal" hidden>
+  <div class="modal-card">
+    <button class="modal-close" id="closeAdminModal" aria-label="Close">×</button>
+    <h3>Store Login</h3>
+    <p class="field-hint" id="loginHint">Enter your store password to manage products.</p>
+    <input type="password" class="field" id="adminPasswordInput" placeholder="Password">
+    <button class="btn btn-primary" id="adminLoginSubmit" style="width:100%;">Enter</button>
+    <p class="error-text" id="adminLoginError" hidden>That password isn't right — try again.</p>
+  </div>
+</div>
+
+<!-- Admin panel -->
+<div class="admin-panel" id="adminPanel" hidden>
+  <div class="admin-inner">
+    <div class="admin-top">
+      <h2>Store Manager</h2>
+      <button class="btn btn-ghost small" id="adminLogout">Close</button>
+    </div>
+    <p class="muted-sm">Changes here update the live storefront for everyone who visits this page.</p>
+
+    <div class="admin-section">
+      <h3>Add a product</h3>
+      <form id="productForm">
+        <input class="field" id="pName" placeholder="Product name (e.g. 15A Wall Socket, White)" required>
+        <div class="admin-row">
+          <input class="field" id="pPrice" placeholder="Price (e.g. 4.50)" required inputmode="decimal">
+          <input class="field" id="pCategory" placeholder="Category (optional)">
+        </div>
+        <input class="field" id="pImage" type="file" accept="image/*">
+        <button type="submit" class="btn btn-primary">Add to counter</button>
+      </form>
+    </div>
+
+    <div class="admin-section">
+      <h3>Current stock (<span id="adminStockCount">0</span>)</h3>
+      <div id="adminProductList"></div>
+    </div>
+
+    <div class="admin-section">
+      <h3>Store details</h3>
+      <form id="infoForm">
+        <input class="field" id="iAddress" placeholder="Address">
+        <div class="admin-row">
+          <input class="field" id="iHours" placeholder="Hours (e.g. Mon–Sat 8am–5pm)">
+          <input class="field" id="iPhone" placeholder="Phone number">
+        </div>
+        <input class="field" id="iWhatsapp" placeholder="WhatsApp number, digits with country code (e.g. 263771234567)">
+        <button type="submit" class="btn btn-primary">Save details</button>
+        <p class="save-msg" id="infoSaveMsg" hidden>Saved.</p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+let products = [];
+let storeInfo = { address: '123 Industrial Road, your city', hours: 'Mon–Sat, 8:00am – 5:00pm', phone: '', whatsapp: '' };
+let adminPassword = null;
+let isAdmin = false;
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function formatPrice(p){
+  const n = parseFloat(p);
+  return isNaN(n) ? escapeHtml(p) : '$' + n.toFixed(2);
+}
+
+/* ---------- Demo data ---------- */
+function productIcon(key){
+  const icons = {
+    socket: `
+      <rect x="55" y="50" width="90" height="100" rx="10" fill="none" stroke="#122a3d" stroke-width="5"/>
+      <circle cx="80" cy="82" r="6" fill="#122a3d"/>
+      <circle cx="120" cy="82" r="6" fill="#122a3d"/>
+      <rect x="92" y="108" width="16" height="24" rx="3" fill="#122a3d"/>
+    `,
+    switch: `
+      <rect x="55" y="55" width="90" height="90" rx="10" fill="none" stroke="#122a3d" stroke-width="5"/>
+      <rect x="82" y="75" width="36" height="50" rx="8" fill="none" stroke="#122a3d" stroke-width="5"/>
+      <line x1="100" y1="85" x2="100" y2="105" stroke="#e8542c" stroke-width="5" stroke-linecap="round"/>
+    `,
+    breaker: `
+      <rect x="70" y="45" width="60" height="95" rx="6" fill="none" stroke="#122a3d" stroke-width="5"/>
+      <line x1="88" y1="88" x2="112" y2="62" stroke="#e8542c" stroke-width="6" stroke-linecap="round"/>
+      <line x1="60" y1="150" x2="140" y2="150" stroke="#122a3d" stroke-width="5"/>
+    `,
+    cable: `
+      <path d="M50 150 C50 100 90 130 90 90 C90 60 130 80 130 50" fill="none" stroke="#e8542c" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="50" cy="150" r="5" fill="#122a3d"/>
+      <circle cx="130" cy="50" r="5" fill="#122a3d"/>
+    `,
+    outdoor: `
+      <rect x="55" y="65" width="90" height="85" rx="10" fill="none" stroke="#122a3d" stroke-width="5"/>
+      <path d="M55 65 Q100 25 145 65" fill="none" stroke="#122a3d" stroke-width="5"/>
+      <circle cx="80" cy="108" r="6" fill="#122a3d"/>
+      <circle cx="120" cy="108" r="6" fill="#122a3d"/>
+    `,
+    dimmer: `
+      <rect x="55" y="55" width="90" height="90" rx="10" fill="none" stroke="#122a3d" stroke-width="5"/>
+      <circle cx="100" cy="100" r="24" fill="none" stroke="#122a3d" stroke-width="5"/>
+      <line x1="100" y1="100" x2="115" y2="82" stroke="#e8542c" stroke-width="5" stroke-linecap="round"/>
+    `
+  };
+  return icons[key] || icons.socket;
+}
+
+function demoImage(iconKey){
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'>
+    <rect width='200' height='200' fill='#f6f2e9'/>
+    ${productIcon(iconKey)}
+  </svg>`;
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+}
+
+async function seedDemoDataIfEmpty(){
+  let changed = false;
+
+  if(products.length === 0){
+    const demo = [
+      { name:'15A Wall Socket, White', price:'4.50', category:'Sockets', icon:'socket' },
+      { name:'1-Gang 2-Way Light Switch', price:'3.20', category:'Switches', icon:'switch' },
+      { name:'20A Single Pole MCB Breaker', price:'6.75', category:'Breakers', icon:'breaker' },
+      { name:'2.5mm Twin & Earth Cable (per m)', price:'1.10', category:'Cable', icon:'cable' },
+      { name:'Weatherproof Outdoor Socket', price:'9.90', category:'Sockets', icon:'outdoor' },
+      { name:'Dimmer Switch, Brushed Steel', price:'8.40', category:'Switches', icon:'dimmer' }
+    ];
+    const demoProducts = demo.map(d => ({
+      name: d.name, price: d.price, category: d.category,
+      image: demoImage(d.icon)
+    }));
+
+    if(firebaseReady){
+      for(const p of demoProducts) await addProduct(p);
+      // onSnapshot listener will pick these up and re-render
+    } else {
+      products = demoProducts.map((p, i) => ({ id: 'demo-' + i, ...p }));
+    }
+    changed = true;
+  }
+
+  if(!storeInfo.phone && !storeInfo.whatsapp){
+    storeInfo = {
+      address: '48 Enterprise Road, Msasa, Harare',
+      hours: 'Mon–Fri 8:00am–5:00pm · Sat 8:00am–1:00pm',
+      phone: '+263 77 123 4567',
+      whatsapp: '263771234567'
+    };
+    changed = true;
+    await saveInfo();
+  }
+
+  return changed;
+}
+
+/* ---------- Firebase ---------- */
+// Paste your Firebase project's config below — from the Firebase console:
+// Project settings → Your apps → the </> web app → firebaseConfig
+const firebaseConfig = {
+  apiKey: "AIzaSyA87uoxx4cplfQ60NwyCBt8yifil4vb5no",
+  authDomain: "lewiswebsite-bd43b.firebaseapp.com",
+  projectId: "lewiswebsite-bd43b",
+  storageBucket: "lewiswebsite-bd43b.firebasestorage.app",
+  messagingSenderId: "946043760584",
+  appId: "1:946043760584:web:7b7a956d1e6c674871dafd"
+};
+
+let firebaseReady = false;
+let db = null;
+try{
+  if(firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY"){
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    firebaseReady = true;
+  }
+}catch(e){ firebaseReady = false; }
+
+const productsCol = firebaseReady ? db.collection('products') : null;
+const settingsRef = firebaseReady ? db.collection('store').doc('settings') : null;
+
+/* ---------- Storage ---------- */
+async function loadAll(){
+  if(!firebaseReady){
+    showToast('Firebase isn\'t connected yet — add your config in the code.');
+    await seedDemoDataIfEmpty();
+    renderProducts();
+    renderStoreInfo();
+    return;
+  }
+
+  try{
+    const settingsSnap = await settingsRef.get();
+    if(settingsSnap.exists){
+      const data = settingsSnap.data();
+      if(data.info) storeInfo = data.info;
+      adminPassword = data.adminPassword || null;
+    }
+  }catch(e){ /* keep defaults */ }
+
+  try{
+    const prodSnap = await productsCol.orderBy('createdAt', 'desc').get();
+    products = prodSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }catch(e){ products = []; }
+
+  await seedDemoDataIfEmpty();
+
+  renderProducts();
+  renderStoreInfo();
+
+  // Live sync — reflects changes from any visitor/admin without a page reload
+  productsCol.orderBy('createdAt', 'desc').onSnapshot(snap => {
+    products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderProducts();
+    if(isAdmin) renderAdminList();
+  }, () => { /* ignore transient listener errors */ });
+
+  settingsRef.onSnapshot(snap => {
+    if(!snap.exists) return;
+    const data = snap.data();
+    if(data.info) storeInfo = data.info;
+    adminPassword = data.adminPassword || adminPassword;
+    renderStoreInfo();
+  }, () => { /* ignore transient listener errors */ });
+}
+
+async function addProduct(product){
+  try{
+    await productsCol.add({ ...product, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    return true;
+  }catch(e){
+    showToast('Could not save — check your Firebase setup.');
+    return false;
+  }
+}
+
+async function deleteProduct(id){
+  try{
+    await productsCol.doc(id).delete();
+    return true;
+  }catch(e){
+    showToast('Could not remove that product — try again.');
+    return false;
+  }
+}
+
+async function saveInfo(){
+  try{
+    await settingsRef.set({ info: storeInfo }, { merge: true });
+    return true;
+  }catch(e){
+    showToast('Could not save store details.');
+    return false;
+  }
+}
+
+async function savePassword(pw){
+  try{
+    await settingsRef.set({ adminPassword: pw }, { merge: true });
+    adminPassword = pw;
+    return true;
+  }catch(e){
+    showToast('Could not save your password — please try again.');
+    return false;
+  }
+}
+
+/* ---------- Render: storefront ---------- */
+function renderProducts(){
+  const grid = document.getElementById('productGrid');
+  const empty = document.getElementById('emptyState');
+  const count = document.getElementById('stockCount');
+  count.textContent = products.length ? products.length + ' item' + (products.length===1?'':'s') : '';
+
+  if(!products.length){
+    grid.innerHTML = '';
+    empty.hidden = false;
+    return;
+  }
+  empty.hidden = true;
+
+  grid.innerHTML = products.map(p => `
+    <div class="card">
+      <div class="card-media">
+        ${p.image
+          ? `<img src="${p.image}" alt="${escapeHtml(p.name)}">`
+          : `<div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>`
+        }
+        <div class="price-tag">${formatPrice(p.price)}</div>
+      </div>
+      <div class="card-body">
+        <h3>${escapeHtml(p.name)}</h3>
+        ${p.category ? `<p class="card-cat">${escapeHtml(p.category)}</p>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderStoreInfo(){
+  document.getElementById('infoAddress').textContent = storeInfo.address || '123 Industrial Road, your city';
+  document.getElementById('infoHours').textContent = storeInfo.hours || 'Mon–Sat, 8:00am – 5:00pm';
+  const phoneLink = document.getElementById('infoPhoneLink');
+  const waLink = document.getElementById('infoWhatsappLink');
+  phoneLink.href = storeInfo.phone ? 'tel:' + storeInfo.phone.replace(/\s+/g,'') : '#contact';
+  phoneLink.textContent = storeInfo.phone ? 'Call ' + storeInfo.phone : 'Call the store';
+  if(storeInfo.whatsapp){
+    waLink.href = 'https://wa.me/' + storeInfo.whatsapp.replace(/\D/g,'');
+  } else {
+    waLink.href = '#contact';
+  }
+}
+
+/* ---------- Render: admin list ---------- */
+function renderAdminList(){
+  const list = document.getElementById('adminProductList');
+  document.getElementById('adminStockCount').textContent = products.length;
+  if(!products.length){
+    list.innerHTML = '<p class="muted-sm">No products yet — add your first one above.</p>';
+    return;
+  }
+  list.innerHTML = products.map(p => `
+    <div class="admin-list-item">
+      ${p.image ? `<img src="${p.image}" alt="">` : `<div class="ph-sm"></div>`}
+      <div class="info">
+        <div class="n">${escapeHtml(p.name)}</div>
+        <div class="p">${formatPrice(p.price)}${p.category ? ' · ' + escapeHtml(p.category) : ''}</div>
+      </div>
+      <button class="del-btn" data-id="${p.id}">Remove</button>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.del-btn').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.getAttribute('data-id');
+      btn.disabled = true;
+      const ok = await deleteProduct(id);
+      // The Firestore live-sync listener updates products[] and re-renders both
+      // views automatically; this is just a fallback for when Firebase isn't set up.
+      if(!firebaseReady){
+        products = products.filter(p => p.id !== id);
+        renderProducts();
+        renderAdminList();
+      }
+      if(ok) showToast('Removed.');
+    });
+  });
+}
+
+/* ---------- Image resize ---------- */
+function resizeImage(file, maxW = 900, quality = 0.75){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxW / img.width);
+        const w = Math.round(img.width * scale);
+        const h = Math.round(img.height * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => reject(new Error('Could not read image'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('Could not read file'));
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ---------- Admin login ---------- */
+const adminModal = document.getElementById('adminModal');
+const adminPanel = document.getElementById('adminPanel');
+const loginHint = document.getElementById('loginHint');
+const loginError = document.getElementById('adminLoginError');
+const passwordInput = document.getElementById('adminPasswordInput');
+
+document.getElementById('adminLoginBtn').addEventListener('click', ()=>{
+  loginError.hidden = true;
+  passwordInput.value = '';
+  loginHint.textContent = adminPassword
+    ? 'Enter your store password to manage products.'
+    : 'No password set yet — enter one now to create it.';
+  adminModal.hidden = false;
+  passwordInput.focus();
+});
+
+document.getElementById('closeAdminModal').addEventListener('click', ()=> adminModal.hidden = true);
+adminModal.addEventListener('click', (e)=>{ if(e.target === adminModal) adminModal.hidden = true; });
+
+document.getElementById('adminLoginSubmit').addEventListener('click', async ()=>{
+  const val = passwordInput.value.trim();
+  if(!val) return;
+
+  const submitBtn = document.getElementById('adminLoginSubmit');
+  submitBtn.disabled = true;
+
+  try{
+    if(!adminPassword){
+      const ok = await savePassword(val);
+      if(ok){
+        adminModal.hidden = true;
+        openAdminPanel();
+        showToast('Password set. Keep it safe — you will need it next time.');
+      }
+      return;
+    }
+
+    if(val === adminPassword){
+      adminModal.hidden = true;
+      openAdminPanel();
+    } else {
+      loginError.hidden = false;
+    }
+  }finally{
+    submitBtn.disabled = false;
+  }
+});
+
+passwordInput.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') document.getElementById('adminLoginSubmit').click();
+});
+
+function openAdminPanel(){
+  isAdmin = true;
+  document.getElementById('iAddress').value = storeInfo.address || '';
+  document.getElementById('iHours').value = storeInfo.hours || '';
+  document.getElementById('iPhone').value = storeInfo.phone || '';
+  document.getElementById('iWhatsapp').value = storeInfo.whatsapp || '';
+  renderAdminList();
+  adminPanel.hidden = false;
+}
+
+document.getElementById('adminLogout').addEventListener('click', ()=>{
+  adminPanel.hidden = true;
+  isAdmin = false;
+});
+
+/* ---------- Add product ---------- */
+document.getElementById('productForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  const name = document.getElementById('pName').value.trim();
+  const price = document.getElementById('pPrice').value.trim();
+  const category = document.getElementById('pCategory').value.trim();
+  const fileInput = document.getElementById('pImage');
+  const file = fileInput.files[0];
+
+  if(!name || !price) return;
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Adding…';
+
+  try{
+    let image = null;
+    if(file) image = await resizeImage(file);
+
+    const ok = await addProduct({ name, price, category, image });
+    // Firestore's live-sync listener updates products[] and re-renders once
+    // the write lands; the fallback here covers Firebase-not-configured mode.
+    if(!firebaseReady){
+      products.unshift({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,7), name, price, category, image });
+      renderProducts();
+      renderAdminList();
+    }
+    if(ok){
+      e.target.reset();
+      showToast('Added to the counter.');
+    }
+  }catch(err){
+    showToast('Something went wrong adding that product — try again.');
+  }finally{
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Add to counter';
+  }
+});
+
+/* ---------- Save store info ---------- */
+document.getElementById('infoForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  storeInfo = {
+    address: document.getElementById('iAddress').value.trim(),
+    hours: document.getElementById('iHours').value.trim(),
+    phone: document.getElementById('iPhone').value.trim(),
+    whatsapp: document.getElementById('iWhatsapp').value.trim()
+  };
+  const ok = await saveInfo();
+  renderStoreInfo();
+  const msg = document.getElementById('infoSaveMsg');
+  if(ok){
+    msg.hidden = false;
+    setTimeout(()=> msg.hidden = true, 2000);
+  }
+});
+
+loadAll();
+</script>
+</body>
+</html>
